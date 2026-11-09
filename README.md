@@ -9,7 +9,7 @@ PacketScope turns a Wireshark packet capture exported to CSV into an interactive
 3. From a terminal, export the fields PacketScope reads (replace `capture.pcapng` with your capture file name):
 
    ```bash
-   tshark -r capture.pcapng -T fields -E header=y -E separator=, -E quote=d -E occurrence=f -e frame.number -e frame.time_relative -e ip.src -e ip.dst -e _ws.col.Protocol -e frame.len -e tcp.srcport -e tcp.dstport > capture.csv
+    "C:\Program Files\Wireshark\tshark.exe" -r "your_file_name.pcapng" -T fields -e frame.number -e frame.time_relative -e ip.src -e ip.dst -e _ws.col.Protocol -e frame.len -e tcp.srcport -e tcp.dstport -E header=y -E separator=, -E quote=d > capture.csv
    ```
 
 4. Open `index.html` in a browser and choose `capture.csv`, or serve this folder and open `http://localhost:8000`:
