@@ -124,8 +124,8 @@ function handleParsedCsv(result) {
     var frameNumber = readNumber(row["frame.number"]);
     var time = readNumber(row["frame.time_relative"]);
     var length = readNumber(row["frame.len"]);
-    var source = String(row["ip.src"] || "").trim();
-    var destination = String(row["ip.dst"] || "").trim();
+    var source = String(row["ip.src"] || row["ipv6.src"] || "").trim();
+    var destination = String(row["ip.dst"] || row["ipv6.dst"] || "").trim();
     var protocol = String(row["_ws.col.Protocol"] || row.Protocol || "").trim();
     var sourcePort = readNumber(row["tcp.srcport"]);
     var destinationPort = readNumber(row["tcp.dstport"]);
@@ -438,14 +438,30 @@ function makeDoughnutTooltip(context) {
   return " " + context.label + ": " + context.raw + " packets";
 }
 
-// This function draws a line chart with one point for each observed second.
+// This function draws the traffic timeline and includes quiet seconds with zero packets.
 function drawTrafficChart(statistics) {
   var labels = [];
   var values = [];
+  var secondCounts = {};
+  var firstSecond = null;
+  var lastSecond = null;
   var index;
+
   for (index = 0; index < statistics.secondList.length; index += 1) {
-    labels.push(String(statistics.secondList[index].second));
-    values.push(statistics.secondList[index].count);
+    var entry = statistics.secondList[index];
+    secondCounts[entry.second] = entry.count;
+    if (index === 0) {
+      firstSecond = entry.second;
+    }
+    lastSecond = entry.second;
+  }
+
+  if (firstSecond !== null) {
+    var second;
+    for (second = firstSecond; second <= lastSecond; second += 1) {
+      labels.push(String(second));
+      values.push(secondCounts[second] || 0);
+    }
   }
 
   var options = makeChartOptions("Second");
@@ -611,9 +627,12 @@ function findProtocolLayer(protocol) {
   return "Other / Unclassified";
 }
 
-// This function creates a safe CSS class for badge colours without trusting CSV text.
+// This function creates safe badge classes and gives every TLS version the shared TLS colour.
 function getProtocolClass(protocol) {
   var safeName = protocol.toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+  if (safeName.indexOf("tls") === 0) {
+    safeName = "tls";
+  }
   return "protocol-" + safeName;
 }
 

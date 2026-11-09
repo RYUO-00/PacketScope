@@ -9,7 +9,7 @@ PacketScope turns a Wireshark packet capture exported to CSV into an interactive
 3. From a terminal, export the fields PacketScope reads (replace `capture.pcapng` with your capture file name):
 
    ```bash
-    "C:\Program Files\Wireshark\tshark.exe" -r "your_file_name.pcapng" -T fields -e frame.number -e frame.time_relative -e ip.src -e ip.dst -e _ws.col.Protocol -e frame.len -e tcp.srcport -e tcp.dstport -E header=y -E separator=, -E quote=d > capture.csv
+    "C:\Program Files\Wireshark\tshark.exe" -r "your_file_name.pcapng" -T fields -e frame.number -e frame.time_relative -e ip.src -e ip.dst -e ipv6.src -e ipv6.dst -e _ws.col.Protocol -e frame.len -e tcp.srcport -e tcp.dstport -E header=y -E separator=, -E quote=d > capture.csv
    ```
 
 4. Open `index.html` in a browser and choose `capture.csv`, or serve this folder and open `http://localhost:8000`:
@@ -25,6 +25,8 @@ To regenerate the demo capture with Python 3, run `python generate_sample.py` fr
 ## How it works
 
 The dashboard follows this pipeline: **capture → tshark → CSV → PapaParse → statistics → Chart.js**. Wireshark records frames, `tshark` exports selected fields with a header row, and PapaParse reads each CSV row in the browser. Plain JavaScript converts the fields into packet objects and calculates counts, sizes, IP totals, time buckets, and source talkers. Chart.js draws the four charts, while the same packet objects fill the protocol table, insights, and packet explorer.
+
+The Chart.js and PapaParse libraries are stored locally in `libs/`.
 
 ## DCN concepts
 
